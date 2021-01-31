@@ -1,0 +1,181 @@
+<div class="body_scroll">
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-7 col-md-6 col-sm-12">
+                <h2>Customers Management</h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="" [routerLink]="['/dashboard']"><i class="zmdi zmdi-home"></i> Futian</a></li>
+                    <li class="breadcrumb-item"><a href="javascript:void(0);">Users</a></li>
+                </ul>
+                <button class="btn btn-primary btn-icon mobile_menu" type="button"><i class="zmdi zmdi-sort-amount-desc"></i></button>
+            </div>
+            <div class="col-lg-5 col-md-6 col-sm-12">
+                <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button" (click)="toggleRightBar()"><i class="zmdi zmdi-arrow-right"></i></button>
+                <button class="btn btn-success btn-icon float-right" data-toggle="modal" data-target="#insertWarehouseModal" type="button"><i class="zmdi zmdi-plus"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Basic Examples -->
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="header">
+                        <h2><strong>Customers</strong> Management </h2>
+                    </div>
+                    <div class="body" *ngIf="customers">
+                        <div class="table-responsive">
+                            <table datatable id="example" class="table table-bordered table-striped table-hover js-basic-example dataTable">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Address</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let user of customers">
+                                        <td class="d-sm-flex justify-content">
+                                            <img src="{{api.imageUrl + user.userdetail?.image}}" class="avatar w30" alt="">
+                                            <p class="c_name">{{user.name}}</p>
+                                        </td>
+                                        <td>
+                                            <span class="email"><a href="javascript:void(0);" title="">{{user.email}}</a></span>
+                                        </td>
+                                        <td>
+                                            <span class="phone"><i class="zmdi zmdi-whatsapp mr-2"></i>{{user.userdetail.phone}}</span>
+                                        </td>
+                                        <td>
+                                            <address><i class="zmdi zmdi-pin"></i>{{user.userdetail.address}}</address>
+                                        </td>
+                                        <td>
+                                            <span *ngIf="user.userdetail.status == '1'" class="badge badge-success" (click)="openModal('1', user.userdetail.id)">Approved</span>
+                                            <span *ngIf="user.userdetail.status == '0'" class="badge badge-warning" (click)="openModal('0', user.userdetail.id)">Pending</span>
+                                            <span *ngIf="user.userdetail.status == '-1'" class="badge badge-danger" (click)="openModal('-1', user.userdetail.id)">Declined</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" (click)="openUpdateModal(user)"><i class="zmdi zmdi-edit"></i></button>
+                                            <button class="btn btn-danger btn-sm" (click)="deleteUser(user.id)"><i class="zmdi zmdi-delete"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ngx-ui-loader loaderId="customer"></ngx-ui-loader>
+
+<div class="modal fade" id="addWarehouseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Update Status</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="customerStatusForm" (ngSubmit)="updateUserStatus()">
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label for="email-login" class="sr-only">Status</label>
+                            <select class="form-control" formControlName="status">
+                                <option value="1">Approved</option>
+                                <option value="0">Pending</option>
+                                <option value="-1">Declined</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <button type="submit" class="btn btn-secondary btn-lg btn-block" type="submit" [disabled]="customerStatusForm.invalid">Update Status</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="insertWarehouseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add New Customer</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="addCustomerForm" (ngSubmit)="insertWarehouseUser()">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="email-login" class="sr-only">Name</label>
+                            <input class="form-control" formControlName="name" placeholder="Enter Name">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="email-login" class="sr-only">Email</label>
+                            <input class="form-control" formControlName="email" placeholder="Enter Email">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="email-login" class="sr-only">Password</label>
+                            <input class="form-control" type="password" formControlName="password" placeholder="Enter Password">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="email-login" class="sr-only">Phone</label>
+                            <input class="form-control" formControlName="phone" placeholder="Enter Phone Number">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="email-login" class="sr-only">Image</label>
+                            <input class="form-control" formControlName="image" (change)="onFileChange($event)" type="file">
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label for="email-login" class="sr-only">Address</label>
+                            <textarea class="form-control" formControlName="address" placeholder="Enter Warehouse Address"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-secondary btn-lg btn-block" type="submit" [disabled]="addCustomerForm.invalid">Add Customer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="updateWarehouseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Update Customer</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="updateCustomerForm" (ngSubmit)="updateUser()">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="email-login" class="sr-only">Name</label>
+                            <input class="form-control" formControlName="name" placeholder="Enter Name">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="email-login" class="sr-only">Phone</label>
+                            <input class="form-control" formControlName="phone" placeholder="Enter Phone Number">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="email-login" class="sr-only">Image</label>
+                            <input class="form-control" formControlName="image" (change)="onFileChange($event)" type="file">
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label for="email-login" class="sr-only">Address</label>
+                            <textarea class="form-control" formControlName="address" placeholder="Enter Warehouse Address"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-secondary btn-lg btn-block" type="submit" [disabled]="updateCustomerForm.invalid">Update Customer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
